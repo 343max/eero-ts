@@ -2,5 +2,6 @@
   "cSpell.words": [
     "eero"
   ],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true
 }
