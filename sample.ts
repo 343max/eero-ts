@@ -16,18 +16,22 @@ const store: SessionStore = {
   },
 }
 
+const logJson = (object: any) => {
+  console.log(JSON.stringify(object, undefined, '  '))
+}
+
 const main = async () => {
   const debugFetch: FetchFunction = async (
     url,
     options,
   ): Promise<FetchResponse> => {
-    console.log({ request: { url, options } })
+    logJson({ request: { url, options } })
     const json = await (await fetch(url, options)).json()
-    console.log({ response: json })
+    logJson({ response: json })
     return { json: () => json }
   }
 
-  const eero = Eero(store, debugFetch)
+  const eero = Eero(store, debugFetch, await store.getCookie())
 
   yargs(process.argv.slice(2))
     .command<{ email: string }>(
@@ -51,11 +55,24 @@ const main = async () => {
         }
 
         const authToken = await question('Authentication Token: ')
-        const response = eero.loginVerify(sessionToken, authToken)
+        const response = await eero.loginVerify(sessionToken, authToken)
 
-        console.log({ response })
+        logJson({ response })
+
+        rl.close()
       },
     )
+    .command('account', 'show account info', async () => {
+      const account = await eero.account()
+      logJson(account)
+    })
+    .command('details', 'show network details', async () => {
+      const account = await eero.account()
+      account.networks.data.forEach(async ({ url }) => {
+        const network = await eero.network(url)
+        logJson(network)
+      })
+    })
     .demandCommand(1)
     .help().argv
 }
