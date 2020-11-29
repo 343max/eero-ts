@@ -1,20 +1,18 @@
-import { FetchFunction, FetchResponse } from './src/client'
-import { Eero, SessionStore } from './src/eero'
+import { Client, FetchFunction, FetchResponse } from './src/client'
+import { Eero, StoreCookieFn } from './src/eero'
 import fetch from 'node-fetch'
 import { readFile, writeFile } from 'fs/promises'
 import yargs from 'yargs'
 import { createInterface } from 'readline'
 
 const cookieStoreFile = 'session.cookie'
-const store: SessionStore = {
-  setCookie: async (cookie: string) => {
-    await writeFile(cookieStoreFile, cookie)
-  },
-  getCookie: async (): Promise<string | null> => {
-    const cookie = await readFile(cookieStoreFile, { encoding: 'utf-8' })
-    return cookie
-  },
+
+const storeCookie: StoreCookieFn = async (cookie: string) => {
+  await writeFile(cookieStoreFile, cookie)
 }
+
+const loadCookie: () => Promise<string | null> = async () =>
+  await readFile(cookieStoreFile, { encoding: 'utf-8' })
 
 const logJson = (object: any) => {
   console.log(JSON.stringify(object, undefined, '  '))
@@ -44,7 +42,7 @@ const main = async () => {
     return { json: () => json }
   }
 
-  const eero = Eero(store, debugFetch, await store.getCookie())
+  const eero = Eero(storeCookie, Client(debugFetch), await loadCookie())
 
   yargs(process.argv.slice(2))
     .command<{ email: string }>(
@@ -109,6 +107,10 @@ const main = async () => {
         logJson(rebootResponse)
       },
     )
+    .command('refreshCookie', 'refresh the session cookie', async () => {
+      const response = await eero.refreshSessionCookie()
+      logJson(response)
+    })
     .demandCommand(1)
     .help().argv
 }

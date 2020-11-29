@@ -1,4 +1,5 @@
-import { idFromUrl } from './../eero'
+import { Eero, idFromUrl } from './../eero'
+
 describe('eero helpers', () => {
   test('idFromUrl: network url', () => {
     const parsedId = idFromUrl('/2.2/networks/64254')

@@ -12,7 +12,7 @@ describe('client tests', () => {
       return { json: () => ({ meta: { code: 200 }, data: 'payload' }) }
     }
 
-    const client = Client(endpoint, fetch)
+    const client = Client(fetch, endpoint)
     const response = await client.get('get')
     expect(response).toStrictEqual('payload')
   })
@@ -28,7 +28,7 @@ describe('client tests', () => {
       return { json: () => ({ meta: { code: 200 }, data: 'payload' }) }
     }
 
-    const client = Client(endpoint, fetch)
+    const client = Client(fetch, endpoint)
     const response = await client.get('get', { sessionCookie: 'someCookie' })
     expect(response).toStrictEqual('payload')
   })
@@ -48,7 +48,7 @@ describe('client tests', () => {
       return { json: () => ({ meta: { code: 200 }, data: 'payload' }) }
     }
 
-    const client = Client(endpoint, fetch)
+    const client = Client(fetch, endpoint)
     const response = await client.post('post', { json: { b: 23 } })
     expect(response).toStrictEqual('payload')
   })
@@ -69,7 +69,7 @@ describe('client tests', () => {
       return { json: () => ({ meta: { code: 200 }, data: 'payload' }) }
     }
 
-    const client = Client(endpoint, fetch)
+    const client = Client(fetch, endpoint)
     const response = await client.post('post', {
       json: { b: 23 },
       sessionCookie: 'someCookie',
@@ -91,7 +91,7 @@ describe('client tests', () => {
       return { json: () => ({ meta: { code: 200 } }) }
     }
 
-    const client = Client(endpoint, fetch)
+    const client = Client(fetch, endpoint)
     const response = await client.post('post', {})
   })
 })

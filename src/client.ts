@@ -23,7 +23,28 @@ type EeroResponse = {
   data: any
 }
 
-export const Client = (endpoint: string, fetch: FetchFunction) => {
+export type NetworkClient = {
+  get: <T = any>(
+    action: string,
+    options?: { sessionCookie?: string },
+  ) => Promise<T>
+
+  post: <T = any>(
+    action: string,
+    {
+      json,
+      sessionCookie,
+    }: {
+      json?: any
+      sessionCookie?: string
+    },
+  ) => Promise<T>
+}
+
+export const Client = (
+  fetch: FetchFunction,
+  endpoint: string = 'https://api-user.e2ro.com/2.2/',
+): NetworkClient => {
   const fetchAndProcess = async (
     url: string,
     sessionCookie: string | undefined,
@@ -45,7 +66,10 @@ export const Client = (endpoint: string, fetch: FetchFunction) => {
   }
 
   return {
-    get: async (action: string, options?: { sessionCookie?: string }) => {
+    get: async <T = any>(
+      action: string,
+      options?: { sessionCookie?: string },
+    ): Promise<T> => {
       const { sessionCookie } = options ?? {}
       return fetchAndProcess(endpoint + action, sessionCookie, {
         method: 'GET',
@@ -53,7 +77,7 @@ export const Client = (endpoint: string, fetch: FetchFunction) => {
       })
     },
 
-    post: async (
+    post: async <T = any>(
       action: string,
       {
         json,
@@ -62,7 +86,7 @@ export const Client = (endpoint: string, fetch: FetchFunction) => {
         json?: any
         sessionCookie?: string
       },
-    ) => {
+    ): Promise<T> => {
       return fetchAndProcess(endpoint + action, sessionCookie, {
         method: 'POST',
         body: json ? JSON.stringify(json) : undefined,

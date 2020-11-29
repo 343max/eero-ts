@@ -1,9 +1,7 @@
-import { Client, FetchFunction } from './client'
+import { Client, FetchFunction, NetworkClient } from './client'
 import { Account, Device, Network } from './types'
-export type SessionStore = {
-  setCookie: (value: string) => Promise<void>
-  getCookie: () => Promise<string | null>
-}
+
+export type StoreCookieFn = (value: string) => Promise<void>
 
 export const idFromUrl = (idOrUrl: string): string | null => {
   const m = idOrUrl.match(/^\/[0-9.]+\/(eeros|networks|devices)\/([0-9]+)$/)
@@ -17,18 +15,41 @@ export const idFromUrl = (idOrUrl: string): string | null => {
 }
 
 export const Eero = (
-  session: SessionStore,
-  fetchFunc: FetchFunction,
+  storeCookie: StoreCookieFn,
+  client: NetworkClient,
   sessionCookie: string | null,
 ) => {
-  const API_ENDPOINT = 'https://api-user.e2ro.com/2.2/'
-  const client = Client(API_ENDPOINT, fetchFunc)
-
   const cookie = { sessionCookie: sessionCookie ?? undefined }
 
+  const refreshSessionCookie = async () => {
+    const response = await client.post<{ user_token: string }>(
+      'login/refresh',
+      {
+        sessionCookie: cookie.sessionCookie,
+      },
+    )
+    const newCookie = response.user_token
+    cookie.sessionCookie = newCookie
+    storeCookie(newCookie)
+    return newCookie
+  }
+
+  const refreshed = async <T>(call: () => Promise<T>): Promise<T> => {
+    try {
+      return await call()
+    } catch (error) {
+      if (error.message === 'error.session.refresh') {
+        await refreshSessionCookie()
+        return await call()
+      } else {
+        throw error
+      }
+    }
+  }
+
   return {
-    needsLogin: async (): Promise<boolean> => {
-      return (await session.getCookie()) !== null
+    needsLogin: (): boolean => {
+      return cookie.sessionCookie !== undefined
     },
 
     login: async (userIdentifier: string): Promise<string> => {
@@ -48,31 +69,43 @@ export const Eero = (
         sessionCookie,
       })
       cookie.sessionCookie = sessionCookie
-      session.setCookie(sessionCookie)
+      storeCookie(sessionCookie)
       return json
     },
 
+    refreshSessionCookie,
+
     account: async (): Promise<Account> =>
-      client.get('account', { sessionCookie: cookie.sessionCookie }),
+      refreshed(() =>
+        client.get('account', { sessionCookie: cookie.sessionCookie }),
+      ),
 
     network: async (networkId: string): Promise<Network> =>
-      client.get('networks/' + idFromUrl(networkId), {
-        sessionCookie: cookie.sessionCookie,
-      }),
+      refreshed(() =>
+        client.get('networks/' + idFromUrl(networkId), {
+          sessionCookie: cookie.sessionCookie,
+        }),
+      ),
 
     eeros: async (networkId: string) =>
-      client.get(`networks/${idFromUrl(networkId)}/eeros`, {
-        sessionCookie: cookie.sessionCookie,
-      }),
+      refreshed(() =>
+        client.get(`networks/${idFromUrl(networkId)}/eeros`, {
+          sessionCookie: cookie.sessionCookie,
+        }),
+      ),
 
     devices: async (networkId: string): Promise<Device[]> =>
-      client.get(`networks/${idFromUrl(networkId)}/devices`, {
-        sessionCookie: cookie.sessionCookie,
-      }),
+      refreshed(() =>
+        client.get(`networks/${idFromUrl(networkId)}/devices`, {
+          sessionCookie: cookie.sessionCookie,
+        }),
+      ),
 
     rebootEero: async (eeroId: string): Promise<Device[]> =>
-      client.post(`eeros/${idFromUrl(eeroId)}/reboot`, {
-        sessionCookie: cookie.sessionCookie,
-      }),
+      refreshed(() =>
+        client.post(`eeros/${idFromUrl(eeroId)}/reboot`, {
+          sessionCookie: cookie.sessionCookie,
+        }),
+      ),
   }
 }
