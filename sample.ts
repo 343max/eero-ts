@@ -50,7 +50,7 @@ const main = async () => {
     .command<{ email: string }>(
       'login <email|phone>',
       'start login process',
-      (y) => {},
+      () => {},
       async (argv) => {
         console.log('requesting auth token')
 
@@ -100,6 +100,15 @@ const main = async () => {
       )
       console.log(testTs(devices, 'devices', 'Device', 'Device[][]'))
     })
+    .command<{ eeroId: string }>(
+      'rebootEero <eeroId>',
+      'reboot an eero',
+      () => {},
+      (argv) => {
+        const rebootResponse = eero.rebootEero(argv.eeroId)
+        logJson(rebootResponse)
+      },
+    )
     .demandCommand(1)
     .help().argv
 }

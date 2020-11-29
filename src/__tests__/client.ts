@@ -76,4 +76,22 @@ describe('client tests', () => {
     })
     expect(response).toStrictEqual('payload')
   })
+
+  test('POST without body', async () => {
+    const endpoint = 'https://example.com/v42/'
+    const fetch: FetchFunction = (url, options) => {
+      expect(url).toBe(`${endpoint}post`)
+      expect(options).toStrictEqual({
+        method: 'POST',
+        body: undefined,
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+      return { json: () => ({ meta: { code: 200 } }) }
+    }
+
+    const client = Client(endpoint, fetch)
+    const response = await client.post('post', {})
+  })
 })

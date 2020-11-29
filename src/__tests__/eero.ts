@@ -6,8 +6,8 @@ describe('eero helpers', () => {
   })
 
   test('idFromUrl: eeros url', () => {
-    const parsedId = idFromUrl('/2.2/eeros/4842')
-    expect(parsedId).toBe('4842')
+    const parsedId = idFromUrl('/2.2/eeros/3536439')
+    expect(parsedId).toBe('3536439')
   })
 
   test('idFromUrl: devices url', () => {

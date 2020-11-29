@@ -6,7 +6,7 @@ export type FetchGetOptions = {
 export type FetchPostOptions = {
   method: 'POST'
   headers: { [key: string]: string }
-  body: string
+  body?: string
 }
 
 export type FetchResponse = {
@@ -59,16 +59,16 @@ export const Client = (endpoint: string, fetch: FetchFunction) => {
         json,
         sessionCookie,
       }: {
-        json: any
+        json?: any
         sessionCookie?: string
       },
     ) => {
       return fetchAndProcess(endpoint + action, sessionCookie, {
         method: 'POST',
-        body: JSON.stringify(json),
+        body: json ? JSON.stringify(json) : undefined,
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
+          ...(json ? { 'Content-Type': 'application/json' } : {}),
         },
       })
     },

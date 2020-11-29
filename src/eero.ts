@@ -69,5 +69,10 @@ export const Eero = (
       client.get(`networks/${idFromUrl(networkId)}/devices`, {
         sessionCookie: cookie.sessionCookie,
       }),
+
+    rebootEero: async (eeroId: string): Promise<Device[]> =>
+      client.post(`eeros/${idFromUrl(eeroId)}/reboot`, {
+        sessionCookie: cookie.sessionCookie,
+      }),
   }
 }

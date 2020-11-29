@@ -166,7 +166,7 @@ export type Network = {
       ips: [string]
     }
     custom: {
-      ips: [string, string]
+      ips: string[]
     }
     caching: false
   }
@@ -294,8 +294,8 @@ export type EeroHotspot = {
   messages: any[]
   model: string
   model_number: string
-  ethernet_addresses: [string, string]
-  wifi_bssids: [string, string]
+  ethernet_addresses: string[]
+  wifi_bssids: string[]
   update_available: boolean
   os: string
   os_version: string
