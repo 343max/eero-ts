@@ -20,14 +20,27 @@ const logJson = (object: any) => {
   console.log(JSON.stringify(object, undefined, '  '))
 }
 
+const testTs = (
+  object: any,
+  name: string,
+  importType: string,
+  declarationType?: string,
+) => {
+  const json = JSON.stringify(object, undefined, '  ')
+  return `import {${importType}} from './src/types'
+  
+const ${name}: ${declarationType ?? importType} = ${json}
+  `
+}
+
 const main = async () => {
   const debugFetch: FetchFunction = async (
     url,
     options,
   ): Promise<FetchResponse> => {
-    logJson({ request: { url, options } })
+    // logJson({ request: { url, options } })
     const json = await (await fetch(url, options)).json()
-    logJson({ response: json })
+    // logJson({ response: json })
     return { json: () => json }
   }
 
@@ -64,14 +77,28 @@ const main = async () => {
     )
     .command('account', 'show account info', async () => {
       const account = await eero.account()
-      logJson(account)
+      console.log(testTs(account, 'account', 'Account'))
     })
-    .command('details', 'show network details', async () => {
+    .command('network', 'show details for all networks', async () => {
       const account = await eero.account()
-      account.networks.data.forEach(async ({ url }) => {
-        const network = await eero.network(url)
-        logJson(network)
-      })
+      const networks = await Promise.all(
+        account.networks.data.map(async ({ url }) => await eero.network(url)),
+      )
+      console.log(testTs(networks, 'networks', 'Network', 'Network[]'))
+    })
+    .command('eeros', 'show all eeros on all networks', async () => {
+      const account = await eero.account()
+      const eeros = await Promise.all(
+        account.networks.data.map(async ({ url }) => await eero.eeros(url)),
+      )
+      console.log(testTs(eeros, 'eeros', 'EeroHotspot', 'EeroHotspot[][]'))
+    })
+    .command('devices', 'show all devices on all networks', async () => {
+      const account = await eero.account()
+      const devices = await Promise.all(
+        account.networks.data.map(async ({ url }) => await eero.devices(url)),
+      )
+      console.log(testTs(devices, 'devices', 'Device', 'Device[][]'))
     })
     .demandCommand(1)
     .help().argv
