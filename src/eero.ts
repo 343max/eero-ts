@@ -1,7 +1,7 @@
 import { Client, FetchFunction, NetworkClient } from './client'
 import { Account, Device, Network } from './types'
 
-export type StoreCookieFn = (value: string) => Promise<void>
+export type StoreCookieFn = (value: string) => void
 
 export const idFromUrl = (idOrUrl: string): string | null => {
   const m = idOrUrl.match(/^\/[0-9.]+\/(eeros|networks|devices)\/([0-9]+)$/)
