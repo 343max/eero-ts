@@ -76,36 +76,41 @@ export const Eero = (
     refreshSessionCookie,
 
     account: async (): Promise<Account> =>
-      refreshed(() =>
-        client.get('account', { sessionCookie: cookie.sessionCookie }),
+      refreshed(
+        async () =>
+          await client.get('account', { sessionCookie: cookie.sessionCookie }),
       ),
 
     network: async (networkId: string): Promise<Network> =>
-      refreshed(() =>
-        client.get('networks/' + idFromUrl(networkId), {
-          sessionCookie: cookie.sessionCookie,
-        }),
+      refreshed(
+        async () =>
+          await client.get('networks/' + idFromUrl(networkId), {
+            sessionCookie: cookie.sessionCookie,
+          }),
       ),
 
     eeros: async (networkId: string) =>
-      refreshed(() =>
-        client.get(`networks/${idFromUrl(networkId)}/eeros`, {
-          sessionCookie: cookie.sessionCookie,
-        }),
+      refreshed(
+        async () =>
+          await client.get(`networks/${idFromUrl(networkId)}/eeros`, {
+            sessionCookie: cookie.sessionCookie,
+          }),
       ),
 
     devices: async (networkId: string): Promise<Device[]> =>
-      refreshed(() =>
-        client.get(`networks/${idFromUrl(networkId)}/devices`, {
-          sessionCookie: cookie.sessionCookie,
-        }),
+      refreshed(
+        async () =>
+          await client.get(`networks/${idFromUrl(networkId)}/devices`, {
+            sessionCookie: cookie.sessionCookie,
+          }),
       ),
 
     rebootEero: async (eeroId: string): Promise<Device[]> =>
-      refreshed(() =>
-        client.post(`eeros/${idFromUrl(eeroId)}/reboot`, {
-          sessionCookie: cookie.sessionCookie,
-        }),
+      refreshed(
+        async () =>
+          await client.post(`eeros/${idFromUrl(eeroId)}/reboot`, {
+            sessionCookie: cookie.sessionCookie,
+          }),
       ),
   }
 }

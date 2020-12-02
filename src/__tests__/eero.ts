@@ -39,15 +39,16 @@ type MockClientRequest = (
   },
 ) => any
 
-const MockClient: (
+const runMocked = async (
+  clientCommand: (client: NetworkClient) => Promise<void>,
   requests: MockClientRequest[],
-) => NetworkClient & { remainingRequests: () => number } = (requests) => {
-  return {
+) => {
+  const client: NetworkClient = {
     get: (action, options): Promise<never> => {
       fail('get is not implemented')
     },
 
-    post: (action, { json, sessionCookie }) => {
+    post: async (action, { json, sessionCookie }) => {
       const request = requests.shift()
 
       if (request === undefined) {
@@ -60,26 +61,26 @@ const MockClient: (
         )
       }
 
-      const result = request(action, { json, sessionCookie })
-      return new Promise((resolve) => resolve(result))
+      return request(action, { json, sessionCookie })
     },
-
-    remainingRequests: () => requests.length,
   }
+  await clientCommand(client)
+  expect(requests.length).toBe(0)
 }
 
 describe('refreshing', () => {
-  test('no refresh needed', () => {
-    const client = MockClient([
-      (action) => {
-        expect(action).toBe('reboot/1234')
-        return { done: true }
+  test('no refresh needed', async () => {
+    await runMocked(
+      async (client) => {
+        const eero = Eero(() => {}, client, '1234')
+        await eero.rebootEero('123')
       },
-    ])
-    const eero = Eero(() => {}, client, '1234')
-
-    eero.rebootEero('123')
-
-    expect(client.remainingRequests()).toBe(0)
+      [
+        (action) => {
+          expect(action).toBe('eeros/123/reboot')
+          return { done: true }
+        },
+      ],
+    )
   })
 })
