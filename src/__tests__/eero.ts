@@ -83,4 +83,29 @@ describe('refreshing', () => {
       ],
     )
   })
+
+  test('refresh succeeds', async () => {
+    await runMocked(
+      async (client) => {
+        const eero = Eero(() => {}, client, '1234')
+        await eero.rebootEero('123')
+      },
+      [
+        (action) => {
+          expect(action).toBe('eeros/123/reboot')
+          throw new Error('error.session.refresh')
+        },
+        (action, { sessionCookie }) => {
+          expect(action).toBe('login/refresh')
+          expect(sessionCookie).toBe('1234')
+          return { user_token: '5678' }
+        },
+        (action, { sessionCookie }) => {
+          expect(action).toBe('eeros/123/reboot')
+          expect(sessionCookie).toBe('5678')
+          return { done: true }
+        },
+      ],
+    )
+  })
 })
