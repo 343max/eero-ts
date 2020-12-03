@@ -17,9 +17,9 @@ export const idFromUrl = (idOrUrl: string): string | null => {
 export const Eero = (
   storeCookie: StoreCookieFn,
   client: NetworkClient,
-  sessionCookie: string | null,
+  initialCookie: string | null,
 ) => {
-  const cookie = { sessionCookie: sessionCookie ?? undefined }
+  const cookie = { sessionCookie: initialCookie ?? undefined }
 
   const refreshSessionCookie = async () => {
     const response = await client.post<{ user_token: string }>(
@@ -56,7 +56,6 @@ export const Eero = (
       const json = await client.post('login', {
         json: { login: userIdentifier },
       })
-      console.log({ json })
       return json.user_token as string
     },
 

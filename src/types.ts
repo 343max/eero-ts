@@ -115,10 +115,10 @@ export type Network = {
       }
     }
   }
-  flags: Array<{
+  flags: {
     flag: string
     value: any
-  }>
+  }[]
   name: string
   password: string
   status: string
