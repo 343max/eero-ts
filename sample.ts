@@ -1,5 +1,10 @@
-import { Client, FetchFunction, FetchResponse } from './src/client'
-import { Eero, StoreCookieFn } from './src/eero'
+import {
+  Client,
+  FetchFunction,
+  FetchResponse,
+  Eero,
+  StoreCookieFn,
+} from './src/'
 import fetch from 'node-fetch'
 import { readFile, writeFile } from 'fs/promises'
 import yargs from 'yargs'
