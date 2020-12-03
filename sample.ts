@@ -16,8 +16,13 @@ const storeCookie: StoreCookieFn = async (cookie: string) => {
   await writeFile(cookieStoreFile, cookie)
 }
 
-const loadCookie: () => Promise<string | null> = async () =>
-  await readFile(cookieStoreFile, { encoding: 'utf-8' })
+const loadCookie: () => Promise<string | null> = async () => {
+  try {
+    return await readFile(cookieStoreFile, { encoding: 'utf-8' })
+  } catch {
+    return null
+  }
+}
 
 const logJson = (object: any) => {
   console.log(JSON.stringify(object, undefined, '  '))
