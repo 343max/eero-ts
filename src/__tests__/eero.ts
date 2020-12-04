@@ -1,4 +1,4 @@
-import { NetworkClient } from './../client'
+import { Client, NetworkClient } from './../client'
 import { Eero, idFromUrl } from './../eero'
 
 describe('eero helpers', () => {
@@ -25,6 +25,18 @@ describe('eero helpers', () => {
   test('idFromUrl: garbage', () => {
     const parsedGarbage = idFromUrl('2.8/something/1337')
     expect(parsedGarbage).toBeNull()
+  })
+})
+
+describe('needsLogin', () => {
+  test('needsLogin: true', () => {
+    const eero = Eero(() => {}, Client({} as any), null)
+    expect(eero.needsLogin()).toBeTruthy()
+  })
+
+  test('needsLogin: false', () => {
+    const eero = Eero(() => {}, Client({} as any), 'xxxx')
+    expect(eero.needsLogin()).toBeFalsy()
   })
 })
 

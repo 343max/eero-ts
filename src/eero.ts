@@ -49,7 +49,7 @@ export const Eero = (
 
   return {
     needsLogin: (): boolean => {
-      return cookie.sessionCookie !== undefined
+      return cookie.sessionCookie === undefined
     },
 
     login: async (userIdentifier: string): Promise<string> => {

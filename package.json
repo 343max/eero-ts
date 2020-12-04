@@ -1,6 +1,6 @@
 {
   "name": "@343max/eero-ts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "unofficial eero API client with TypeScript support",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
