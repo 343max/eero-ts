@@ -52,23 +52,19 @@ export const Eero = (
       return cookie.sessionCookie === undefined
     },
 
-    login: async (userIdentifier: string): Promise<string> => {
+    login: async (userIdentifier: string): Promise<void> => {
       const json = await client.post('login', {
         json: { login: userIdentifier },
       })
-      return json.user_token as string
+      cookie.sessionCookie = json.user_token
     },
 
-    loginVerify: async (
-      sessionCookie: string,
-      authToken: string,
-    ): Promise<any> => {
+    loginVerify: async (authToken: string): Promise<any> => {
       const json = await client.post('login/verify', {
         json: { code: authToken },
-        sessionCookie,
+        sessionCookie: cookie.sessionCookie,
       })
-      cookie.sessionCookie = sessionCookie
-      storeCookie(sessionCookie)
+      if (cookie.sessionCookie) storeCookie(cookie.sessionCookie)
       return json
     },
 

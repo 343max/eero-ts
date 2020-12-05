@@ -62,7 +62,7 @@ const main = async () => {
       async (argv) => {
         console.log('requesting auth token')
 
-        const sessionToken = await eero.login(argv.email)
+        await eero.login(argv.email)
 
         const rl = createInterface({
           input: process.stdin,
@@ -76,7 +76,7 @@ const main = async () => {
         }
 
         const authToken = await question('Authentication Token: ')
-        const response = await eero.loginVerify(sessionToken, authToken)
+        const response = await eero.loginVerify(authToken)
 
         logJson({ response })
 
